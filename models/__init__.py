@@ -5,7 +5,6 @@ import torch.nn as nn
 
 def find_model_using_name(model_name):
     """
-    根据模型名返回模型对象
     """
     model_filename = "models." + model_name + "_model"
     modellib = importlib.import_module(model_filename)
