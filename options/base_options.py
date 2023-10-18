@@ -18,7 +18,9 @@ class BaseOptions():
         parser.add_argument("--gpu_ids", default="-1", help="use -1 for cpu")
         parser.add_argument("--model", type=str,
                             default="cfn", help="the name of model")
-        parser.add_argument("--threshold", type=float, default=20,help="mm")
+        parser.add_argument("--threshold", type=float, default=20, help="mm")
+        parser.add_argument("--save_net_freq", type=int, default=10,
+                            help="save model every save_net_freq epoch")
 
         self.initialized = True
         return parser

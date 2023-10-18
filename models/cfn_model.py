@@ -1,6 +1,7 @@
 import torch.nn as nn
 import torch
 import math
+import torch.optim as optim
 
 
 class CFN(nn.Module):
@@ -84,16 +85,42 @@ class CFN(nn.Module):
     def compute_loss(self, pred, gt):
         loss = nn.L1Loss(pred, gt)
         return loss
-    
-    def net_train(self, dataset, opt):
-        result = {
-            "loss": 0,
-            "acc": 0
-        }
-        device = torch.device(f"cuda:{opt.gpu_ids}" if torch.cuda.is_available() else "cpu")
+
+    def net_train(self, dataset, device, optimizer, opt):
         self.train()
+
+        batch_idx = 0
+        total_loss = 0
         for x, y in dataset:
+            batch_idx += 1
             xc = x.to(device)
             yc = y.to(device)
             pred = self.forward(xc)
             loss = self.compute_loss(pred, yc)
+            total_loss += loss.item()
+
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+            # TODO print
+        return total_loss / batch_idx
+
+    def net_vaild(self, dataset, device, opt):
+        self.eval()
+
+        with torch.no_grad():
+            batch_idx = 0
+            equal = 0
+            for x, y in dataset:
+                batch_idx += 1
+                xc = x.to(device)
+                yc = y.to(device)
+                pred = self.forward(xc)
+                loss = self.compute_loss(pred, yc)
+                if (pred > opt.threshold) == (yc > opt.threshold):
+                    equal += 1
+
+        return equal / batch_idx
+    
+    def save_networks(self, epoch):
+       pass 
